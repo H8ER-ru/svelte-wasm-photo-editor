@@ -1,4 +1,0 @@
-[build]
-    command="mkdir site && echo '<h1>Our Rust Netlify Function</h1>' > site/index.html"
-    publish="site"
-    functions="functions"
