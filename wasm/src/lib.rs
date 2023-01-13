@@ -5,49 +5,23 @@ use image::load_from_memory;
 use image::ImageOutputFormat::Png;
 
 #[wasm_bindgen]
-pub fn grayscale(encoded_file: &str) -> String {
-    log(&"grayscale called".into());
+pub fn image_function(encoded_file: &str, function: &str) -> String {
 
     let base64_to_vector = decode(encoded_file).unwrap();
-    log(&"image decoded".into());
-
     let mut img = load_from_memory(&base64_to_vector).unwrap();
-    log(&"image loaded".into());
 
-    img = img.grayscale();
-    log(&"effect applied".into());
+    match function {
+        "blur" => img = img.blur(5 as f32),
+        "grayscale" => img = img.grayscale(),
+        "rotate90" => img = img.rotate90(),
+        "rotate180" => img = img.rotate180(),
+        "flip_vertical" => img = img.flipv(),
+        "flip_horizontal" => img = img.fliph(),
+        _ => img = img
+    }
 
     let mut buffer = vec![];
     img.write_to(&mut buffer, Png).unwrap();
-
-    log(&"new image written".into());
-
-    let encoded_img = encode(&buffer);
-    let data_url = format!(
-        "data:image/png;base64,{}", encoded_img
-    );
-
-    return data_url
-}
-
-
-#[wasm_bindgen]
-pub fn blur(encoded_file: &str) -> String {
-    log(&"grayscale called".into());
-
-    let base64_to_vector = decode(encoded_file).unwrap();
-    log(&"image decoded".into());
-
-    let mut img = load_from_memory(&base64_to_vector).unwrap();
-    log(&"image loaded".into());
-
-    img = img.blur(5 as f32);
-    log(&"effect applied".into());
-
-    let mut buffer = vec![];
-    img.write_to(&mut buffer, Png).unwrap();
-
-    log(&"new image written".into());
 
     let encoded_img = encode(&buffer);
     let data_url = format!(

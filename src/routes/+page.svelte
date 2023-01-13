@@ -1,62 +1,51 @@
 <script lang="ts">
-  import { onMount } from 'svelte'
-  import init, { grayscale, blur } from "wasm";
+  import '../app.css'
+  import { fade } from 'svelte/transition';
+  import {imageStore} from "../store/ImageStore";
+  import ToolsPanel from "../components/ToolsPanel.svelte";
+  import InitialLoad from "../components/InitialLoad.svelte";
 
-  onMount(async () => {
-    await init()
+  let imageToShow = ''
+
+  imageStore.subscribe(newValue => {
+    imageToShow = newValue.currentImage
   })
-
-  let imgBase64Initial = null;
-
-  let imgSrc = null
-
-  const loadImgAndGrayScale = (e) => {
-    const fileReader = new FileReader()
-
-    fileReader.onload = (result) => {
-      imgBase64Initial = fileReader.result?.replace(
-        /^data:image\/(png|jpg|jpeg);base64,/,
-        ''
-      )
-      imgSrc = fileReader.result
-    }
-
-    fileReader.readAsDataURL(e.target.files[0])
-  }
-
-  const grayscaleHandler = e => {
-    e.preventDefault()
-    imgSrc = grayscale(imgBase64Initial)
-  }
-
-  const blurHandler = e => {
-    e.preventDefault()
-    imgSrc = blur(imgBase64Initial)
-  }
 
 </script>
 
 <div class="main">
 
-  {#if imgSrc}
-    <img src={imgSrc} alt="">
+  {#if imageToShow}
+    <div transition:fade class="main__wrapper">
+      <ToolsPanel/>
+      <img class="main__img" src={imageToShow} alt="">
+    </div>
   {/if}
 
-  <input type="file" on:input={loadImgAndGrayScale} accept=".png">
-  <button on:click={grayscaleHandler}>grayscale</button>
-  <button on:click={blurHandler}>blur</button>
+  {#if !imageToShow}
+    <InitialLoad/>
+  {/if}
 
 </div>
 
 
-<style>
-*, *:after, *:before {
-    box-sizing: border-box;
-    margin: 0;
-    padding: 0;
-    font-family: 'Montserrat', sans-serif;
-}
+<style lang="scss">
 .main {
-    padding: 20px;
+  padding: 20px;
+  background: #828282;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  &__wrapper {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+  }
+  &__img {
+    max-width: 800px;
+    max-height: 70vh;
+    display: block;
+    margin: auto;
+  }
 }
 </style>
